@@ -21,6 +21,7 @@
         <th>age</th>
         <th>birthDate</th>
         <th>studentStatus</th>
+        <th colspan="2">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -32,6 +33,10 @@
         <td>${st.age}</td>
         <td><fmt:formatDate value="${st.birthDate}" pattern="dd-MM-yyyy"></fmt:formatDate></td>
         <td>${st.studentStatus ? "Hoat động" : "không hoạt động"}</td>
+        <td>
+            <a href="<%=request.getContextPath()%>/StudentServlet?studentId=${st.studentId}&&action=update">Edit</a>
+            <a href="<%=request.getContextPath()%>/StudentServlet?studentId=${st.studentId}&&action=delete">Delete</a>
+        </td>
     </tr>
     </c:forEach>
     </tbody>

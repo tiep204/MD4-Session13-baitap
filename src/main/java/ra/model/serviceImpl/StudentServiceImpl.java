@@ -4,12 +4,10 @@ import ra.model.entity.Student;
 import ra.model.service.StudentService;
 import ra.model.util.ConnectionDB;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
-import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 
 public class StudentServiceImpl implements StudentService<Student, String> {
 
@@ -41,13 +39,20 @@ public class StudentServiceImpl implements StudentService<Student, String> {
     }
 
     @Override
-    public boolean save(Student student) {
+    public boolean save(Map<String,Student> map) {
         Connection conn = null;
         CallableStatement call = null;
+        Student student = null;
         boolean result = true;
         try {
             conn = ConnectionDB.openConnection();
-            call = conn.prepareCall("{call proc_insertStudent(?,?,?,?,?)}");
+            if (map.containsKey("Update")){
+                student= map.get("Update");
+                call = conn.prepareCall("{call proc_updateStudent(?,?,?,?,?)}");
+            }else {
+                student= map.get("Insert");
+                call = conn.prepareCall("{call proc_insertStudent(?,?,?,?,?)}");
+            }
             call.setString(1, student.getStudentId());
             call.setString(2, student.getStudentName());
             call.setInt(3, student.getAge());
@@ -65,12 +70,47 @@ public class StudentServiceImpl implements StudentService<Student, String> {
 
     @Override
     public boolean delete(String id) {
-        return false;
+        Connection conn = null;
+        CallableStatement callSt = null;
+        boolean result = true;
+        try {
+            conn = ConnectionDB.openConnection();
+            callSt = conn.prepareCall("{call proc_DeleteStudentId(?)}");
+            callSt.setString(1,id);
+            callSt.executeUpdate();
+        }catch (Exception e){
+            result = false;
+            e.printStackTrace();
+        }finally {
+            ConnectionDB.closeConnection(conn,callSt);
+        }
+        return result;
     }
 
     @Override
     public Student getById(String id) {
-        return null;
+        Connection conn = null;
+        CallableStatement callSt = null;
+        Student st = null;
+        try {
+            conn = ConnectionDB.openConnection();
+            callSt = conn.prepareCall("{call proc_GetStudentById(?)}");
+            callSt.setString(1,id);
+            ResultSet rs = callSt.executeQuery();
+            st = new Student();
+            if (rs.next()){
+                st.setStudentId(rs.getString("studentId"));
+                st.setStudentName(rs.getString("studentName"));
+                st.setAge(rs.getInt("age"));
+                st.setBirthDate(rs.getDate("birthDate"));
+                st.setStudentStatus(rs.getBoolean("studentStatus"));
+            }
+        } catch (SQLException e) {
+           e.printStackTrace();
+        }finally {
+            ConnectionDB.closeConnection(conn,callSt);
+        }
+        return st;
     }
 
     @Override
