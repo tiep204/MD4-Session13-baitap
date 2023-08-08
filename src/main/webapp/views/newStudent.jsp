@@ -9,6 +9,7 @@
 <html>
 <head>
     <title>create</title>
+    <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/css/styles.css">
 </head>
 <body>
 <form action="<%=request.getContextPath()%>/StudentServlet" method="post">

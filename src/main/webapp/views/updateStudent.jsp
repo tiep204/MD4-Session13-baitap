@@ -11,6 +11,8 @@
 <html>
 <head>
     <title>Update Student</title>
+    <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/css/sty.css">
+
 </head>
 <body>
 <form action="<%=request.getContextPath()%>/StudentServlet" method="post">

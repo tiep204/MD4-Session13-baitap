@@ -21,19 +21,25 @@ public class StudentServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action!=null&&action.equals("update")){
-            String studentId  = request.getParameter("studentId");
+        if (action != null && action.equals("update")) {
+            String studentId = request.getParameter("studentId");
             Student studentUpdate = studentService.getById(studentId);
-            request.setAttribute("studentUpdate",studentUpdate);
-            request.getRequestDispatcher("views/updateStudent.jsp").forward(request,response);
-        } else if (action!=null&&action.equals("delete")) {
+            request.setAttribute("studentUpdate", studentUpdate);
+            request.getRequestDispatcher("views/updateStudent.jsp").forward(request, response);
+        } else if (action != null && action.equals("delete")) {
             String studentId = request.getParameter("studentId");
             boolean result = studentService.delete(studentId);
-            if (result){
-                getAll(request,response);
-            }else {
-                request.getRequestDispatcher("views/error.jsp").forward(request,response);
+            if (result) {
+                getAll(request, response);
+            } else {
+                request.getRequestDispatcher("views/error.jsp").forward(request, response);
             }
+        } else if (action != null && action.equals("search")) {
+            String name = request.getParameter("studentName");
+            request.setAttribute("listStudent", studentService.searchStudentByName(name));
+            request.getRequestDispatcher("views/student.jsp").forward(request, response);
+            studentService.searchStudentByName(name);
+            getAll(request, response);
         }
         getAll(request, response);
     }
@@ -68,13 +74,13 @@ public class StudentServlet extends HttpServlet {
             } else {
                 request.getRequestDispatcher("views/erro.jsp").forward(request, response);
             }
-        }else if (action!=null&&action.equals("update")){
+        } else if (action != null && action.equals("update")) {
             map.put("Update", st);
             boolean result = studentService.save(map);
-            if (result){
-                getAll(request,response);
-            }else{
-                request.getRequestDispatcher("views/error.jsp").forward(request,response);
+            if (result) {
+                getAll(request, response);
+            } else {
+                request.getRequestDispatcher("views/error.jsp").forward(request, response);
             }
         }
     }

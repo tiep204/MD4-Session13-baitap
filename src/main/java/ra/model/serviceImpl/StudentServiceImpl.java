@@ -115,6 +115,29 @@ public class StudentServiceImpl implements StudentService<Student, String> {
 
     @Override
     public List<Student> searchStudentByName(String name) {
-        return null;
+        Connection conn = null;
+        CallableStatement callSt = null;
+        List<Student> studentList = new ArrayList<>(); // Khởi tạo danh sách trước khi sử dụng
+        try {
+            conn = ConnectionDB.openConnection();
+            callSt = conn.prepareCall("{call proc_searchStudentByName(?)}");
+            callSt.setString(1, name);
+            ResultSet rs = callSt.executeQuery();
+
+            while (rs.next()) {
+                Student st = new Student(); // Tạo một đối tượng Student cho mỗi kết quả
+                st.setStudentId(rs.getString("studentId"));
+                st.setStudentName(rs.getString("studentName"));
+                st.setAge(rs.getInt("age"));
+                st.setBirthDate(rs.getDate("birthDate"));
+                st.setStudentStatus(rs.getBoolean("studentStatus"));
+                studentList.add(st);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            ConnectionDB.closeConnection(conn, callSt);
+        }
+        return studentList;
     }
 }
