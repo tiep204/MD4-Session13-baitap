@@ -30,7 +30,8 @@ public class StudentServlet extends HttpServlet {
             String studentId = request.getParameter("studentId");
             boolean result = studentService.delete(studentId);
             if (result) {
-                getAll(request, response);
+                /*getAll(request, response);*/
+                paging(request, response);
             } else {
                 request.getRequestDispatcher("views/error.jsp").forward(request, response);
             }
@@ -39,9 +40,36 @@ public class StudentServlet extends HttpServlet {
             request.setAttribute("listStudent", studentService.searchStudentByName(name));
             request.getRequestDispatcher("views/student.jsp").forward(request, response);
             studentService.searchStudentByName(name);
-            getAll(request, response);
+            /*getAll(request, response);*/
+            paging(request, response);
+        } else if (action != null && action.equals("sort")) {
+            String sort = request.getParameter("sortDirection");
+            List<Student> studentList = studentService.sortStudentByName(sort);
+            request.setAttribute("listStudent", studentList);
+            request.getRequestDispatcher("/views/student.jsp").forward(request, response);
         }
-        getAll(request, response);
+        paging(request, response);
+        /*getAll(request, response);*/
+    }
+
+    public void paging(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        String indexPage = request.getParameter("indexs");
+        StudentService st = new StudentServiceImpl();
+        if (indexPage == null) {
+            indexPage = "1";
+        }
+        int indexs = Integer.parseInt(indexPage);
+        int count = st.getTotalStudent();
+        int endPage = count / 5;
+        if (count % 5 != 0) {
+            endPage++;
+        }
+        List<Student> list = studentService.pagingStudent(indexs);
+        request.setAttribute("listStudent", list);
+        request.setAttribute("endP", endPage);
+        request.setAttribute("tag",indexs);
+        request.getRequestDispatcher("views/student.jsp").forward(request, response);
     }
 
     public void getAll(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -70,7 +98,8 @@ public class StudentServlet extends HttpServlet {
             map.put("Insert", st);
             boolean result = studentService.save(map);
             if (result) {
-                getAll(request, response);
+                /*getAll(request, response);*/
+                request.getRequestDispatcher("/index.jsp").forward(request,response);
             } else {
                 request.getRequestDispatcher("views/erro.jsp").forward(request, response);
             }
@@ -78,7 +107,8 @@ public class StudentServlet extends HttpServlet {
             map.put("Update", st);
             boolean result = studentService.save(map);
             if (result) {
-                getAll(request, response);
+                /*getAll(request, response);*/
+                request.getRequestDispatcher("/index.jsp").forward(request,response);
             } else {
                 request.getRequestDispatcher("views/error.jsp").forward(request, response);
             }

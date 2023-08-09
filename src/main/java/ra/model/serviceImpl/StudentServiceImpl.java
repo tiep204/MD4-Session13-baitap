@@ -140,4 +140,106 @@ public class StudentServiceImpl implements StudentService<Student, String> {
         }
         return studentList;
     }
+
+    @Override
+    public List<Student> sortStudentByName(String name) {
+        Connection conn = null;
+        CallableStatement callSt = null;
+        List<Student> list = new ArrayList<>();
+        try {
+            conn = ConnectionDB.openConnection();
+            callSt = conn.prepareCall("{call proc_sortStudentByName(?)}");
+            callSt.setString(1,name);
+            ResultSet rs = callSt.executeQuery();
+            while (rs.next()){
+                Student st = new Student(); // Tạo một đối tượng Student cho mỗi kết quả
+                st.setStudentId(rs.getString("studentId"));
+                st.setStudentName(rs.getString("studentName"));
+                st.setAge(rs.getInt("age"));
+                st.setBirthDate(rs.getDate("birthDate"));
+                st.setStudentStatus(rs.getBoolean("studentStatus"));
+                list.add(st);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            ConnectionDB.closeConnection(conn,callSt);
+        }
+        return list;
+    }
+
+    @Override
+    public List<Student> pagingStudent(int indexs) {
+        Connection conn = null;
+        CallableStatement callSt = null;
+        List<Student> list = new ArrayList<>();
+        try {
+            conn = ConnectionDB.openConnection();
+            callSt = conn.prepareCall("{call pagingStudent(?)}");
+            callSt.setInt(1,(indexs-1)*5);
+            ResultSet rs = callSt.executeQuery();
+            while (rs.next()){
+                Student st = new Student(); // Tạo một đối tượng Student cho mỗi kết quả
+                st.setStudentId(rs.getString("studentId"));
+                st.setStudentName(rs.getString("studentName"));
+                st.setAge(rs.getInt("age"));
+                st.setBirthDate(rs.getDate("birthDate"));
+                st.setStudentStatus(rs.getBoolean("studentStatus"));
+                list.add(st);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            ConnectionDB.closeConnection(conn,callSt);
+        }
+        return list;
+    }
+
+    @Override
+    public int getTotalStudent() {
+        Connection conn = null;
+        CallableStatement callSt = null;
+        List<Student> studentList = new ArrayList<>(); // Khởi tạo danh sách trước khi sử dụng
+        try {
+            conn = ConnectionDB.openConnection();
+            callSt = conn.prepareCall("{call proc_totalStudent()}");
+            ResultSet rs = callSt.executeQuery();
+            while (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            ConnectionDB.closeConnection(conn, callSt);
+        }
+        return 0;
+    }
+
+    /*@Override
+    public List<Student> pagingStudent(int page, int size) {
+        Connection conn = null;
+        CallableStatement callSt = null;
+        List<Student> list = new ArrayList<>();
+        try {
+            conn = ConnectionDB.openConnection();
+            callSt = conn.prepareCall("{call proc_pagination(?,?)}");
+            callSt.setInt(1,page);
+            callSt.setInt(2,size);
+            ResultSet rs = callSt.executeQuery();
+            while (rs.next()){
+                Student st = new Student(); // Tạo một đối tượng Student cho mỗi kết quả
+                st.setStudentId(rs.getString("studentId"));
+                st.setStudentName(rs.getString("studentName"));
+                st.setAge(rs.getInt("age"));
+                st.setBirthDate(rs.getDate("birthDate"));
+                st.setStudentStatus(rs.getBoolean("studentStatus"));
+                list.add(st);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            ConnectionDB.closeConnection(conn,callSt);
+        }
+        return list;
+    }*/
 }
